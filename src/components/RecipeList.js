@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const RecipeList = ({ recipes }) => {
+  const navigate = useNavigate();
   if (!recipes || !recipes.results || recipes.results.length === 0) {
     return (
       <div className="card mt-4">
@@ -17,7 +19,11 @@ const RecipeList = ({ recipes }) => {
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {recipes.results.map((recipe) => (
           <div key={recipe.id} className="col">
-            <div className="card h-100 recipe-card">
+            <div 
+              className="card h-100 recipe-card" 
+              onClick={() => navigate(`/recipe/${recipe.id}`)}
+              style={{ cursor: 'pointer' }}
+            >
               <img 
                 src={recipe.image} 
                 className="card-img-top" 

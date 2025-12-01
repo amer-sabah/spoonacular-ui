@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import RecipeList from './RecipeList';
 
 const RecipeSearch = () => {
   const [query, setQuery] = useState('');
@@ -24,9 +25,6 @@ const RecipeSearch = () => {
           maxResultSize: 10
         }
       });
-
-      // Log results to console
-      console.log('Search Results:', response.data);
       
       setSearchResults(response.data);
     } catch (err) {
@@ -91,26 +89,7 @@ const RecipeSearch = () => {
         </div>
       </div>
 
-      {searchResults && (
-        <div className="card mt-4 search-card">
-          <div className="card-body">
-            <h5 className="card-title mb-3">
-              <i className="bi bi-terminal me-2"></i>
-              Console Output
-            </h5>
-            <div className="result-console">
-              {JSON.stringify(searchResults, null, 2)}
-            </div>
-            <div className="mt-3 text-muted">
-              <small>
-                <i className="bi bi-info-circle me-1"></i>
-                Found {searchResults.totalResults || 0} recipes. 
-                Full results are logged to browser console.
-              </small>
-            </div>
-          </div>
-        </div>
-      )}
+      {searchResults && <RecipeList recipes={searchResults} />}
     </div>
   );
 };

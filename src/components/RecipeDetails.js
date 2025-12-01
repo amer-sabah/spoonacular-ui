@@ -7,8 +7,17 @@ const RecipeDetails = () => {
   const navigate = useNavigate();
   const [recipe, setRecipe] = useState(null);
   const [ingredientsData, setIngredientsData] = useState({});
+  const [excludedIngredients, setExcludedIngredients] = useState({});
+  const [ingredientsLoading, setIngredientsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const toggleIngredientExclusion = (ingredientId) => {
+    setExcludedIngredients(prev => ({
+      ...prev,
+      [ingredientId]: !prev[ingredientId]
+    }));
+  };
 
   useEffect(() => {
     fetchRecipeDetails();
@@ -37,23 +46,29 @@ const RecipeDetails = () => {
   };
 
   const fetchIngredientsData = async (ingredients) => {
+    setIngredientsLoading(true);
     const ingredientsInfo = {};
 
     for (const ingredient of ingredients) {
       try {
-        const response = await axios.get(`http://localhost:8080/recipes/ingredients/${ingredient.id}`, {
+        const amount = ingredient.measures?.metric?.amount || 1;
+        const unit = ingredient.measures?.metric?.unitLong || 'serving';
+        
+        const response = await axios.get(`http://localhost:8080/ingredients/${ingredient.id}`, {
           params: {
-            amount: ingredient.measures?.metric?.amount || 1,
-            unit: ingredient.measures?.metric?.unitLong || 'serving'
+            amount: amount,
+            unit: unit
           }
         });
         ingredientsInfo[ingredient.id] = response.data;
       } catch (err) {
-        console.error(`Error fetching ingredient ${ingredient.id}:`, err);
+        console.error(`Error fetching ingredient ${ingredient.id}:`, err.response?.data || err.message);
+        ingredientsInfo[ingredient.id] = null;
       }
     }
 
     setIngredientsData(ingredientsInfo);
+    setIngredientsLoading(false);
   };
 
   if (loading) {
@@ -94,6 +109,23 @@ const RecipeDetails = () => {
       </div>
     );
   }
+
+  // Calculate total calories from all ingredients (excluding unchecked ones)
+  const totalCalories = recipe?.extendedIngredients?.reduce((total, ingredient) => {
+    // Skip if ingredient is excluded
+    if (excludedIngredients[ingredient.id]) {
+      return total;
+    }
+    
+    const ingredientInfo = ingredientsData[ingredient.id];
+    if (ingredientInfo && ingredientInfo.nutrition?.nutrients) {
+      const caloriesNutrient = ingredientInfo.nutrition.nutrients.find(n => n.name === 'Calories');
+      if (caloriesNutrient) {
+        return total + (caloriesNutrient.amount || 0);
+      }
+    }
+    return total;
+  }, 0) || 0;
 
   return (
     <div className="container mt-4">
@@ -145,6 +177,13 @@ const RecipeDetails = () => {
                     ${(recipe.pricePerServing / 100).toFixed(2)}
                   </div>
                 </div>
+                <div className="col-6 col-md-4 mb-3">
+                  <div className="text-muted small">Total Calories</div>
+                  <div className="fs-5 fw-bold">
+                    <i className="bi bi-fire me-2 text-danger"></i>
+                    {totalCalories > 0 ? `${totalCalories.toFixed(1)} kcal` : 'Calculating...'}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -165,30 +204,51 @@ const RecipeDetails = () => {
                   <div key={ingredient.id} className="col-md-6 mb-3">
                     <div className="card h-100">
                       <div className="card-body">
-                        <h6 className="card-subtitle mb-2">{ingredient.originalName}</h6>
-                        <div className="small text-muted">
-                          <div>
+                        <h6 className="card-subtitle mb-2 text-dark">{ingredient.originalName}</h6>
+                        <div className="small">
+                          <div className="mb-1">
+                            <i className="bi bi-droplet me-1 text-primary"></i>
                             <strong>Amount:</strong> {ingredient.measures?.metric?.amount} {ingredient.measures?.metric?.unitLong}
                           </div>
-                          {ingredientInfo && (
+                          {ingredientInfo && ingredientInfo !== null ? (
                             <>
-                              <div>
-                                <strong>Estimated Cost:</strong> ${(ingredientInfo.estimatedCost?.value / 100).toFixed(2)}
-                              </div>
+                              {ingredientInfo.estimatedCost?.value && (
+                                <div className="mb-1">
+                                  <i className="bi bi-currency-dollar me-1 text-success"></i>
+                                  <strong>Estimated Cost:</strong> ${(ingredientInfo.estimatedCost.value / 100).toFixed(2)}
+                                </div>
+                              )}
                               {ingredientInfo.nutrition?.nutrients && (
-                                <div>
+                                <>
                                   {ingredientInfo.nutrition.nutrients
                                     .filter(n => n.name === 'Calories')
                                     .map((nutrient, idx) => (
-                                      <div key={idx}>
+                                      <div key={idx} className="mb-1">
+                                        <i className="bi bi-fire me-1 text-danger"></i>
                                         <strong>Calories:</strong> {nutrient.amount} {nutrient.unit}
                                       </div>
                                     ))
                                   }
-                                </div>
+                                </>
                               )}
                             </>
-                          )}
+                          ) : ingredientsLoading ? (
+                            <div className="text-muted fst-italic">
+                              <small>Loading ingredient details...</small>
+                            </div>
+                          ) : null}
+                        </div>
+                        <div className="form-check form-switch mt-2 pt-2 border-top">
+                          <input 
+                            className="form-check-input" 
+                            type="checkbox" 
+                            id={`ingredient-${ingredient.id}`}
+                            checked={excludedIngredients[ingredient.id] || false}
+                            onChange={() => toggleIngredientExclusion(ingredient.id)}
+                          />
+                          <label className="form-check-label small text-muted" htmlFor={`ingredient-${ingredient.id}`}>
+                            Exclude from totals
+                          </label>
                         </div>
                       </div>
                     </div>

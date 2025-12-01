@@ -247,7 +247,7 @@ const RecipeDetails = () => {
                             onChange={() => toggleIngredientExclusion(ingredient.id)}
                           />
                           <label className="form-check-label small text-muted" htmlFor={`ingredient-${ingredient.id}`}>
-                            Exclude from totals
+                            Exclude from total calories
                           </label>
                         </div>
                       </div>

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import '../i18n';
 
 const RecipeDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [recipe, setRecipe] = useState(null);
   const [ingredientsData, setIngredientsData] = useState({});
   const [excludedIngredients, setExcludedIngredients] = useState({});
@@ -71,13 +74,19 @@ const RecipeDetails = () => {
     setIngredientsLoading(false);
   };
 
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lng;
+  };
+
   if (loading) {
     return (
       <div className="container mt-5 text-center">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
-        <p className="mt-3">Loading recipe details...</p>
+        <p className="mt-3">{t('recipeDetails.loading')}</p>
       </div>
     );
   }
@@ -90,7 +99,7 @@ const RecipeDetails = () => {
         </div>
         <button className="btn btn-primary" onClick={() => navigate('/')}>
           <i className="bi bi-arrow-left me-2"></i>
-          Back to Search
+          {t('recipeDetails.backToSearch')}
         </button>
       </div>
     );
@@ -100,11 +109,11 @@ const RecipeDetails = () => {
     return (
       <div className="container mt-5">
         <div className="alert alert-warning" role="alert">
-          Recipe not found
+          {t('recipeDetails.error')}
         </div>
         <button className="btn btn-primary" onClick={() => navigate('/')}>
           <i className="bi bi-arrow-left me-2"></i>
-          Back to Search
+          {t('recipeDetails.backToSearch')}
         </button>
       </div>
     );
@@ -129,10 +138,28 @@ const RecipeDetails = () => {
 
   return (
     <div className="container mt-4">
-      <button className="btn btn-outline-primary mb-4" onClick={() => navigate('/')}>
-        <i className="bi bi-arrow-left me-2"></i>
-        Back to Search
-      </button>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <button className="btn btn-outline-primary" onClick={() => navigate('/')}>
+          <i className="bi bi-arrow-left me-2"></i>
+          {t('recipeDetails.backToSearch')}
+        </button>
+        <div className="btn-group" role="group">
+          <button 
+            type="button" 
+            className={`btn btn-sm ${i18n.language === 'en' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => changeLanguage('en')}
+          >
+            English
+          </button>
+          <button 
+            type="button" 
+            className={`btn btn-sm ${i18n.language === 'ar' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => changeLanguage('ar')}
+          >
+            العربية
+          </button>
+        </div>
+      </div>
 
       <div className="card">
         <div className="row g-0">
@@ -150,35 +177,35 @@ const RecipeDetails = () => {
               
               <div className="row mb-3">
                 <div className="col-6 col-md-4 mb-3">
-                  <div className="text-muted small">Servings</div>
+                  <div className="text-muted small">{t('recipeDetails.servings')}</div>
                   <div className="fs-5 fw-bold">
                     <i className="bi bi-people me-2 text-primary"></i>
                     {recipe.servings}
                   </div>
                 </div>
                 <div className="col-6 col-md-4 mb-3">
-                  <div className="text-muted small">Ready In</div>
+                  <div className="text-muted small">{t('recipeDetails.readyIn')}</div>
                   <div className="fs-5 fw-bold">
                     <i className="bi bi-clock me-2 text-primary"></i>
-                    {recipe.readyInMinutes} min
+                    {recipe.readyInMinutes} {t('recipeDetails.minutes')}
                   </div>
                 </div>
                 <div className="col-6 col-md-4 mb-3">
-                  <div className="text-muted small">Health Score</div>
+                  <div className="text-muted small">{t('recipeDetails.healthScore')}</div>
                   <div className="fs-5 fw-bold">
                     <i className="bi bi-heart-pulse me-2 text-primary"></i>
                     {recipe.healthScore}
                   </div>
                 </div>
                 <div className="col-6 col-md-4 mb-3">
-                  <div className="text-muted small">Price Per Serving</div>
+                  <div className="text-muted small">{t('recipeDetails.pricePerServing')}</div>
                   <div className="fs-5 fw-bold">
                     <i className="bi bi-currency-dollar me-2 text-primary"></i>
                     ${(recipe.pricePerServing / 100).toFixed(2)}
                   </div>
                 </div>
                 <div className="col-6 col-md-4 mb-3">
-                  <div className="text-muted small">Total Calories</div>
+                  <div className="text-muted small">{t('recipeDetails.totalCalories')}</div>
                   <div className="fs-5 fw-bold">
                     <i className="bi bi-fire me-2 text-danger"></i>
                     {totalCalories > 0 ? `${totalCalories.toFixed(1)} kcal` : 'Calculating...'}
@@ -195,7 +222,7 @@ const RecipeDetails = () => {
           <div className="card-body">
             <h4 className="card-title mb-4">
               <i className="bi bi-basket me-2"></i>
-              Ingredients
+              {t('recipeDetails.ingredients')}
             </h4>
             <div className="row">
               {recipe.extendedIngredients.map((ingredient) => {
@@ -215,7 +242,7 @@ const RecipeDetails = () => {
                               {ingredientInfo.estimatedCost?.value && (
                                 <div className="mb-1">
                                   <i className="bi bi-currency-dollar me-1 text-success"></i>
-                                  <strong>Estimated Cost:</strong> ${(ingredientInfo.estimatedCost.value / 100).toFixed(2)}
+                                  <strong>{t('recipeDetails.cost')}:</strong> ${(ingredientInfo.estimatedCost.value / 100).toFixed(2)}
                                 </div>
                               )}
                               {ingredientInfo.nutrition?.nutrients && (
@@ -225,7 +252,7 @@ const RecipeDetails = () => {
                                     .map((nutrient, idx) => (
                                       <div key={idx} className="mb-1">
                                         <i className="bi bi-fire me-1 text-danger"></i>
-                                        <strong>Calories:</strong> {nutrient.amount} {nutrient.unit}
+                                        <strong>{t('recipeDetails.calories')}:</strong> {nutrient.amount} {nutrient.unit}
                                       </div>
                                     ))
                                   }
@@ -234,7 +261,7 @@ const RecipeDetails = () => {
                             </>
                           ) : ingredientsLoading ? (
                             <div className="text-muted fst-italic">
-                              <small>Loading ingredient details...</small>
+                              <small>{t('recipeDetails.loadingIngredient')}</small>
                             </div>
                           ) : null}
                         </div>
@@ -247,7 +274,7 @@ const RecipeDetails = () => {
                             onChange={() => toggleIngredientExclusion(ingredient.id)}
                           />
                           <label className="form-check-label small text-muted" htmlFor={`ingredient-${ingredient.id}`}>
-                            Exclude from total calories
+                            {t('recipeDetails.excludeFromTotal')}
                           </label>
                         </div>
                       </div>
@@ -265,7 +292,7 @@ const RecipeDetails = () => {
           <div className="card-body">
             <h4 className="card-title mb-4">
               <i className="bi bi-list-ol me-2"></i>
-              Instructions
+              {t('recipeDetails.instructions')}
             </h4>
             {recipe.analyzedInstructions.map((instruction, idx) => (
               <div key={idx} className="mb-3">

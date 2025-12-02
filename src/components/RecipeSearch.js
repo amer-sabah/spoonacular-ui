@@ -81,63 +81,34 @@ const searchReducer = (state, action) => {
 };
 
 const RecipeSearch = () => {
+  // Hooks
   const { t, i18n } = useTranslation();
   const [state, dispatch] = useReducer(searchReducer, initialState);
   const debounceTimer = useRef(null);
   const suggestionsRef = useRef(null);
 
-  // Debounced autocomplete search
-  useEffect(() => {
-    if (state.query.trim().length >= 2) {
-      // Clear existing timer
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
-
-      // Set new timer
-      debounceTimer.current = setTimeout(async () => {
-        dispatch({ type: ACTIONS.SUGGESTIONS_START });
-        try {
-          const response = await axios.get(API_ENDPOINTS.RECIPES_SEARCH, {
-            params: {
-              query: state.query,
-              maxResultSize: 5
-            }
-          });
-          dispatch({ 
-            type: ACTIONS.SUGGESTIONS_SUCCESS, 
-            payload: response.data.results || [] 
-          });
-        } catch (err) {
-          console.error('Error fetching suggestions:', err);
-          dispatch({ type: ACTIONS.SUGGESTIONS_ERROR });
-        }
-      }, 500); // 500ms debounce delay
-    } else {
-      dispatch({ type: ACTIONS.SUGGESTIONS_ERROR });
-      dispatch({ type: ACTIONS.HIDE_SUGGESTIONS });
-    }
-
-    return () => {
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
-    };
-  }, [state.query]);
-
-  // Close suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
-        dispatch({ type: ACTIONS.HIDE_SUGGESTIONS });
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
+  // Computed values
   const calorieOptions = getCalorieOptions(t);
+
+  // API calls
+  const fetchAutocompleteSuggestions = async (query) => {
+    dispatch({ type: ACTIONS.SUGGESTIONS_START });
+    try {
+      const response = await axios.get(API_ENDPOINTS.RECIPES_SEARCH, {
+        params: {
+          query: query,
+          maxResultSize: 5
+        }
+      });
+      dispatch({ 
+        type: ACTIONS.SUGGESTIONS_SUCCESS, 
+        payload: response.data.results || [] 
+      });
+    } catch (err) {
+      console.error('Error fetching suggestions:', err);
+      dispatch({ type: ACTIONS.SUGGESTIONS_ERROR });
+    }
+  };
 
   const handleSearch = async () => {
     if (!state.query.trim()) {
@@ -175,6 +146,7 @@ const RecipeSearch = () => {
     }
   };
 
+  // Event handlers
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -185,7 +157,6 @@ const RecipeSearch = () => {
   const handleSuggestionClick = (suggestion) => {
     dispatch({ type: ACTIONS.SET_QUERY, payload: suggestion.title });
     dispatch({ type: ACTIONS.HIDE_SUGGESTIONS });
-    // Optionally trigger search immediately
     setTimeout(() => {
       handleSearch();
     }, 100);
@@ -194,6 +165,46 @@ const RecipeSearch = () => {
   const handleCloseErrorModal = () => {
     dispatch({ type: ACTIONS.HIDE_ERROR_MODAL });
   };
+
+  // Helper functions
+  const setupClickOutsideListener = () => {
+    const handleClickOutside = (event) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
+        dispatch({ type: ACTIONS.HIDE_SUGGESTIONS });
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  };
+
+  // Effects
+  // Debounced autocomplete search
+  useEffect(() => {
+    if (state.query.trim().length >= 2) {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+
+      debounceTimer.current = setTimeout(() => {
+        fetchAutocompleteSuggestions(state.query);
+      }, 500);
+    } else {
+      dispatch({ type: ACTIONS.SUGGESTIONS_ERROR });
+      dispatch({ type: ACTIONS.HIDE_SUGGESTIONS });
+    }
+
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [state.query]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    return setupClickOutsideListener();
+  }, []);
 
   return (
     <div className="search-container">

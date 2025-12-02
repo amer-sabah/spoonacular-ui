@@ -173,16 +173,8 @@ const RecipeDetails = () => {
     );
   };
 
-  return (
-    <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <button className="btn btn-outline-primary" onClick={() => navigate('/')}>
-          <i className="bi bi-arrow-left me-2"></i>
-          {t('recipeDetails.backToSearch')}
-        </button>
-        <LanguageSwitcher />
-      </div>
-
+  const renderRecipeHeader = () => {
+    return (
       <div className="card">
         <div className="row g-0">
           <div className="col-md-5">
@@ -229,6 +221,20 @@ const RecipeDetails = () => {
           </div>
         </div>
       </div>
+    );
+  };
+
+  return (
+    <div className="container mt-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <button className="btn btn-outline-primary" onClick={() => navigate('/')}>
+          <i className="bi bi-arrow-left me-2"></i>
+          {t('recipeDetails.backToSearch')}
+        </button>
+        <LanguageSwitcher />
+      </div>
+
+      {renderRecipeHeader()}
 
       {recipe.extendedIngredients && recipe.extendedIngredients.length > 0 && (
         <div className="card mt-4">

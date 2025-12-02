@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import RecipeList from './RecipeList';
 import { useTranslation } from 'react-i18next';
@@ -13,12 +13,68 @@ const RecipeSearch = () => {
   const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState(null);
   const [error, setError] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const debounceTimer = useRef(null);
+  const suggestionsRef = useRef(null);
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lng;
   };
+
+  // Debounced autocomplete search
+  useEffect(() => {
+    if (query.trim().length >= 2) {
+      // Clear existing timer
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+
+      // Set new timer
+      debounceTimer.current = setTimeout(async () => {
+        setLoadingSuggestions(true);
+        try {
+          const response = await axios.get(API_ENDPOINTS.RECIPES_SEARCH, {
+            params: {
+              query: query,
+              maxResultSize: 5
+            }
+          });
+          setSuggestions(response.data.results || []);
+          setShowSuggestions(true);
+        } catch (err) {
+          console.error('Error fetching suggestions:', err);
+          setSuggestions([]);
+        } finally {
+          setLoadingSuggestions(false);
+        }
+      }, 500); // 500ms debounce delay
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [query]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const cuisines = [
     'African', 'Asian', 'American', 'British', 'Cajun', 'Caribbean', 
@@ -79,7 +135,17 @@ const RecipeSearch = () => {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
+      setShowSuggestions(false);
     }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setQuery(suggestion.title);
+    setShowSuggestions(false);
+    // Optionally trigger search immediately
+    setTimeout(() => {
+      handleSearch();
+    }, 100);
   };
 
   return (
@@ -108,15 +174,57 @@ const RecipeSearch = () => {
           
           <div className="row g-3 mb-3">
             <div className="col-md-12">
-              <input
-                type="text"
-                className="form-control form-control-lg"
-                placeholder={t('recipeSearch.placeholder')}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyPress={handleKeyPress}
-                disabled={loading}
-              />
+              <div className="position-relative" ref={suggestionsRef}>
+                <input
+                  type="text"
+                  className="form-control form-control-lg"
+                  placeholder={t('recipeSearch.placeholder')}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                  disabled={loading}
+                  autoComplete="off"
+                />
+                {showSuggestions && (suggestions.length > 0 || loadingSuggestions) && (
+                  <div 
+                    className="position-absolute w-100 bg-white border rounded shadow-lg" 
+                    style={{ 
+                      top: '100%', 
+                      zIndex: 1000, 
+                      maxHeight: '300px', 
+                      overflowY: 'auto',
+                      marginTop: '4px'
+                    }}
+                  >
+                    {loadingSuggestions ? (
+                      <div className="p-3 text-center text-muted">
+                        <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                        Loading suggestions...
+                      </div>
+                    ) : (
+                      <ul className="list-group list-group-flush">
+                        {suggestions.map((suggestion) => (
+                          <li 
+                            key={suggestion.id}
+                            className="list-group-item list-group-item-action d-flex align-items-center" 
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleSuggestionClick(suggestion)}
+                          >
+                            <img 
+                              src={suggestion.image} 
+                              alt={suggestion.title}
+                              style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                              className="rounded me-3"
+                            />
+                            <span>{suggestion.title}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

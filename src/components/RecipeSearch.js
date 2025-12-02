@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import RecipeList from './RecipeList';
 import { useTranslation } from 'react-i18next';
+import { API_ENDPOINTS } from '../config/api';
 import '../i18n';
 
 const RecipeSearch = () => {
@@ -61,7 +62,7 @@ const RecipeSearch = () => {
         params.maxCalories = maxCalories;
       }
 
-      const response = await axios.get('http://localhost:8080/recipes/search', {
+      const response = await axios.get(API_ENDPOINTS.RECIPES_SEARCH, {
         params: params
       });
       

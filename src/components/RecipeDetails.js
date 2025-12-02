@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
+import { API_ENDPOINTS } from '../config/api';
 import '../i18n';
 
 const RecipeDetails = () => {
@@ -31,7 +32,7 @@ const RecipeDetails = () => {
     setError(null);
 
     try {
-      const response = await axios.get(`http://localhost:8080/recipes/${id}`);
+      const response = await axios.get(API_ENDPOINTS.RECIPE_DETAILS(id));
       const recipeData = response.data;
       setRecipe(recipeData);
 
@@ -57,7 +58,7 @@ const RecipeDetails = () => {
         const amount = ingredient.measures?.metric?.amount || 1;
         const unit = ingredient.measures?.metric?.unitLong || 'serving';
         
-        const response = await axios.get(`http://localhost:8080/ingredients/${ingredient.id}`, {
+        const response = await axios.get(API_ENDPOINTS.INGREDIENT_DETAILS(ingredient.id), {
           params: {
             amount: amount,
             unit: unit

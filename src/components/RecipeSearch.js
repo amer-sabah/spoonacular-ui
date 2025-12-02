@@ -5,6 +5,7 @@ import ErrorModal from './ErrorModal';
 import { useTranslation } from 'react-i18next';
 import { API_ENDPOINTS } from '../config/api';
 import { formatErrorMessage } from '../utils/errorHandler';
+import { changeLanguage } from '../utils/languageHelper';
 import { cuisines } from '../constants/cuisines';
 import { getCalorieOptions } from '../constants/calorieOptions';
 import '../i18n';
@@ -84,12 +85,6 @@ const RecipeSearch = () => {
   const [state, dispatch] = useReducer(searchReducer, initialState);
   const debounceTimer = useRef(null);
   const suggestionsRef = useRef(null);
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-    document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = lng;
-  };
 
   // Debounced autocomplete search
   useEffect(() => {
@@ -210,14 +205,14 @@ const RecipeSearch = () => {
               <button 
                 type="button" 
                 className={`btn btn-sm ${i18n.language === 'en' ? 'btn-primary' : 'btn-outline-primary'}`}
-                onClick={() => changeLanguage('en')}
+                onClick={() => changeLanguage(i18n, 'en')}
               >
                 English
               </button>
               <button 
                 type="button" 
                 className={`btn btn-sm ${i18n.language === 'ar' ? 'btn-primary' : 'btn-outline-primary'}`}
-                onClick={() => changeLanguage('ar')}
+                onClick={() => changeLanguage(i18n, 'ar')}
               >
                 العربية
               </button>

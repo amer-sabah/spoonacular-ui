@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import ErrorModal from './ErrorModal';
 import { API_ENDPOINTS } from '../config/api';
 import { formatErrorMessage } from '../utils/errorHandler';
+import { changeLanguage } from '../utils/languageHelper';
 import '../i18n';
 
 const RecipeDetails = () => {
@@ -76,12 +77,6 @@ const RecipeDetails = () => {
 
     setIngredientsData(ingredientsInfo);
     setIngredientsLoading(false);
-  };
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-    document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = lng;
   };
 
   const handleCloseErrorModal = () => {
@@ -175,14 +170,14 @@ const RecipeDetails = () => {
           <button 
             type="button" 
             className={`btn btn-sm ${i18n.language === 'en' ? 'btn-primary' : 'btn-outline-primary'}`}
-            onClick={() => changeLanguage('en')}
+            onClick={() => changeLanguage(i18n, 'en')}
           >
             English
           </button>
           <button 
             type="button" 
             className={`btn btn-sm ${i18n.language === 'ar' ? 'btn-primary' : 'btn-outline-primary'}`}
-            onClick={() => changeLanguage('ar')}
+            onClick={() => changeLanguage(i18n, 'ar')}
           >
             العربية
           </button>

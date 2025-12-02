@@ -319,42 +319,12 @@ const RecipeDetails = () => {
       )}
 
       {/* Error Modal */}
-      {showErrorModal && error && (
-        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header bg-danger text-white">
-                <h5 className="modal-title">
-                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                  {error.title}
-                </h5>
-                <button 
-                  type="button" 
-                  className="btn-close btn-close-white" 
-                  onClick={handleCloseErrorModal}
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p className="mb-3">{error.message}</p>
-                <div className="alert alert-info mb-0">
-                  <i className="bi bi-info-circle me-2"></i>
-                  {error.action}
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary" 
-                  onClick={handleCloseErrorModal}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ErrorModal
+        show={showErrorModal}
+        error={error}
+        onClose={handleCloseErrorModal}
+        closeButtonText={t('buttons.close')}
+      />
     </div>
   );
 };

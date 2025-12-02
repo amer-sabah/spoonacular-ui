@@ -2,10 +2,10 @@ import React, { useReducer, useEffect, useRef } from 'react';
 import axios from 'axios';
 import RecipeList from './RecipeList';
 import ErrorModal from './ErrorModal';
+import LanguageSwitcher from './LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import { API_ENDPOINTS } from '../config/api';
 import { formatErrorMessage } from '../utils/errorHandler';
-import { changeLanguage } from '../utils/languageHelper';
 import { cuisines } from '../constants/cuisines';
 import { getCalorieOptions } from '../constants/calorieOptions';
 import '../i18n';
@@ -212,22 +212,7 @@ const RecipeSearch = () => {
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h2 className="card-title mb-0">{t('recipeSearch.title')}</h2>
-            <div className="btn-group" role="group" style={{ direction: 'ltr' }}>
-              <button 
-                type="button" 
-                className={`btn btn-sm ${i18n.language === 'en' ? 'btn-primary' : 'btn-outline-primary'}`}
-                onClick={() => changeLanguage(i18n, 'en')}
-              >
-                English
-              </button>
-              <button 
-                type="button" 
-                className={`btn btn-sm ${i18n.language === 'ar' ? 'btn-primary' : 'btn-outline-primary'}`}
-                onClick={() => changeLanguage(i18n, 'ar')}
-              >
-                العربية
-              </button>
-            </div>
+            <LanguageSwitcher />
           </div>
           
           <div className="row g-3 mb-3">

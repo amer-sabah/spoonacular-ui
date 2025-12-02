@@ -3,9 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import ErrorModal from './ErrorModal';
+import LanguageSwitcher from './LanguageSwitcher';
 import { API_ENDPOINTS } from '../config/api';
 import { formatErrorMessage } from '../utils/errorHandler';
-import { changeLanguage } from '../utils/languageHelper';
 import '../i18n';
 
 const RecipeDetails = () => {
@@ -166,22 +166,7 @@ const RecipeDetails = () => {
           <i className="bi bi-arrow-left me-2"></i>
           {t('recipeDetails.backToSearch')}
         </button>
-        <div className="btn-group" role="group" style={{ direction: 'ltr' }}>
-          <button 
-            type="button" 
-            className={`btn btn-sm ${i18n.language === 'en' ? 'btn-primary' : 'btn-outline-primary'}`}
-            onClick={() => changeLanguage(i18n, 'en')}
-          >
-            English
-          </button>
-          <button 
-            type="button" 
-            className={`btn btn-sm ${i18n.language === 'ar' ? 'btn-primary' : 'btn-outline-primary'}`}
-            onClick={() => changeLanguage(i18n, 'ar')}
-          >
-            العربية
-          </button>
-        </div>
+        <LanguageSwitcher />
       </div>
 
       <div className="card">

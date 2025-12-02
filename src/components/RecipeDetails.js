@@ -159,6 +159,20 @@ const RecipeDetails = () => {
     return total;
   }, 0) || 0;
 
+  // ==================== Render Helpers ====================
+
+  const renderStatCard = (label, value, icon, iconColor = 'text-primary') => {
+    return (
+      <div className="col-6 col-md-4 mb-3">
+        <div className="text-muted small">{label}</div>
+        <div className="fs-5 fw-bold">
+          <i className={`bi bi-${icon} me-2 ${iconColor}`}></i>
+          {value}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -184,41 +198,32 @@ const RecipeDetails = () => {
               <h2 className="card-title mb-4">{recipe.title}</h2>
               
               <div className="row mb-3">
-                <div className="col-6 col-md-4 mb-3">
-                  <div className="text-muted small">{t('recipeDetails.servings')}</div>
-                  <div className="fs-5 fw-bold">
-                    <i className="bi bi-people me-2 text-primary"></i>
-                    {recipe.servings}
-                  </div>
-                </div>
-                <div className="col-6 col-md-4 mb-3">
-                  <div className="text-muted small">{t('recipeDetails.readyIn')}</div>
-                  <div className="fs-5 fw-bold">
-                    <i className="bi bi-clock me-2 text-primary"></i>
-                    {recipe.readyInMinutes} {t('recipeDetails.minutes')}
-                  </div>
-                </div>
-                <div className="col-6 col-md-4 mb-3">
-                  <div className="text-muted small">{t('recipeDetails.healthScore')}</div>
-                  <div className="fs-5 fw-bold">
-                    <i className="bi bi-heart-pulse me-2 text-primary"></i>
-                    {recipe.healthScore}
-                  </div>
-                </div>
-                <div className="col-6 col-md-4 mb-3">
-                  <div className="text-muted small">{t('recipeDetails.pricePerServing')}</div>
-                  <div className="fs-5 fw-bold">
-                    <i className="bi bi-currency-dollar me-2 text-primary"></i>
-                    ${(recipe.pricePerServing / 100).toFixed(2)}
-                  </div>
-                </div>
-                <div className="col-6 col-md-4 mb-3">
-                  <div className="text-muted small">{t('recipeDetails.totalCalories')}</div>
-                  <div className="fs-5 fw-bold">
-                    <i className="bi bi-fire me-2 text-danger"></i>
-                    {totalCalories.toFixed(1)} kcal
-                  </div>
-                </div>
+                {renderStatCard(
+                  t('recipeDetails.servings'),
+                  recipe.servings,
+                  'people'
+                )}
+                {renderStatCard(
+                  t('recipeDetails.readyIn'),
+                  `${recipe.readyInMinutes} ${t('recipeDetails.minutes')}`,
+                  'clock'
+                )}
+                {renderStatCard(
+                  t('recipeDetails.healthScore'),
+                  recipe.healthScore,
+                  'heart-pulse'
+                )}
+                {renderStatCard(
+                  t('recipeDetails.pricePerServing'),
+                  `$${(recipe.pricePerServing / 100).toFixed(2)}`,
+                  'currency-dollar'
+                )}
+                {renderStatCard(
+                  t('recipeDetails.totalCalories'),
+                  `${totalCalories.toFixed(1)} kcal`,
+                  'fire',
+                  'text-danger'
+                )}
               </div>
             </div>
           </div>

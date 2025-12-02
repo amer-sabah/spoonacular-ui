@@ -4,10 +4,45 @@ A React-based frontend application for searching recipes using the Spoonacular A
 
 ## Features
 
-- Recipe search interface with Bootstrap styling
-- Integration with Spoonacular Backend API
-- Console output display for search results
-- Real-time search with loading indicators
+### 🔍 Search & Discovery
+- **Recipe Search**: Search recipes by name with real-time loading indicators
+- **Advanced Filters**: Filter by cuisine type and maximum calories
+- **Smart Autocomplete**: Debounced search suggestions (500ms) with recipe thumbnails showing top 5 matches
+- **Recipe Details**: View comprehensive recipe information including ingredients, instructions, nutrition, and pricing
+
+### 🌐 Internationalization (i18n)
+- **Bilingual Support**: Full English and Arabic localization
+- **RTL Layout**: Proper right-to-left support for Arabic
+- **Localized Content**: All UI elements, error messages, and dialog buttons translated
+- **Language Switcher**: Easy toggle between languages on any page
+
+### 📊 Nutrition Tracking
+- **Ingredient Nutrition**: Detailed calorie information for each ingredient
+- **Smart Calorie Calculation**: Real-time total calorie calculation with exclude functionality
+- **Interactive Ingredients**: Toggle ingredients to exclude from total calorie count
+
+### 🎨 User Experience
+- **Responsive Design**: Bootstrap 5 styling with mobile-friendly layout
+- **Recipe Cards**: Visual recipe grid with images and key information
+- **Modal Dialogs**: Professional error and notification displays
+- **Loading States**: Spinner indicators during API calls
+
+### 🛡️ Error Handling
+- **Friendly Error Messages**: User-friendly error dialogs instead of technical jargon
+- **Smart Error Detection**: 
+  - Rate limit/quota exceeded (402, 429)
+  - Network connection errors
+  - Server errors (5xx)
+  - Resource not found (404)
+  - Unauthorized access (401, 403)
+- **Console Logging**: Detailed technical error logs for debugging
+- **Actionable Guidance**: Clear instructions on what to do when errors occur
+
+### 🏗️ Architecture
+- **Centralized API Configuration**: Environment-based API endpoint management
+- **State Management**: useReducer pattern for complex component state
+- **Modular Components**: Reusable RecipeSearch, RecipeList, and RecipeDetails components
+- **Error Handler Utility**: Centralized error message formatting
 
 ## Prerequisites
 
@@ -35,25 +70,88 @@ npm start
 
 ## Usage
 
-1. Enter a recipe search query (e.g., "pasta", "chicken", "salad")
-2. Click the "Search" button or press Enter
-3. View the results in the console output section
-4. Check the browser's developer console for full JSON response
+### Search for Recipes
+
+1. **Enter Search Query**: Type a recipe name in the search box (e.g., "pasta", "chicken", "salad")
+   - As you type, autocomplete suggestions will appear with recipe thumbnails after 500ms
+   - Click on a suggestion to quickly select it
+
+2. **Apply Filters** (Optional):
+   - **Cuisine**: Select a specific cuisine from the dropdown (Italian, Chinese, Mexican, etc.)
+   - **Max Calories**: Choose a calorie limit (100, 200, 300, 400, 500, 600, or 700 kcal)
+
+3. **Search**: Click the "Search" button or press Enter
+   - A loading spinner will appear while fetching results
+
+4. **Browse Results**: View recipe cards in a responsive grid layout
+   - Each card shows the recipe image, title, and key information
+
+### View Recipe Details
+
+1. **Click on a Recipe Card**: Opens the detailed recipe view
+
+2. **View Information**:
+   - **Recipe Overview**: Servings, cooking time, health score, price per serving
+   - **Ingredients List**: All ingredients with amounts and costs
+   - **Nutrition Information**: Calorie count for each ingredient
+   - **Instructions**: Step-by-step cooking instructions
+
+3. **Calculate Total Calories**:
+   - View total calories automatically calculated from all ingredients
+   - **Exclude Ingredients**: Check the "Exclude from total calories" box for ingredients you don't want included
+   - Total updates in real-time as you toggle ingredients
+
+4. **Navigation**: Click "Back to Search" to return to search results
+
+### Change Language
+
+- Use the **Language Toggle** buttons (English/العربية) at the top of any page
+- The entire interface, including error messages, switches language instantly
+- Arabic mode includes proper RTL (right-to-left) layout support
+
+### Handle Errors
+
+- If an error occurs (network issues, API limits, etc.), a modal dialog will appear
+- Error messages are user-friendly and provide actionable guidance
+- Click "Close" or "Back to Search" to dismiss the error and continue
 
 ## API Integration
 
-The application connects to the backend API at:
-- **Endpoint**: `GET http://localhost:8080/recipes/search`
+The application connects to the Spoonacular Backend API with the following endpoints:
+
+### Search Recipes
+- **Endpoint**: `GET /recipes/search`
 - **Parameters**: 
   - `query`: Search term (required)
+  - `cuisine`: Cuisine filter (optional)
+  - `maxCalories`: Maximum calories per serving (optional)
   - `maxResultSize`: Number of results (default: 10)
+
+### Get Recipe Details
+- **Endpoint**: `GET /recipes/{id}`
+- **Parameters**: 
+  - `id`: Recipe ID (required)
+
+### Get Ingredient Details
+- **Endpoint**: `GET /ingredients/{id}`
+- **Parameters**: 
+  - `id`: Ingredient ID (required)
+
+### Configuration
+The API base URL can be configured using environment variables:
+```bash
+REACT_APP_API_BASE_URL=http://localhost:8080
+```
+See `.env.example` for reference.
 
 ## Technologies Used
 
-- React 18
-- Bootstrap 5
-- Axios for HTTP requests
-- React Scripts for build tooling
+- **React 18.2.0**: Frontend framework with Hooks (useState, useEffect, useReducer, useRef)
+- **React Router DOM 7.9.6**: Client-side routing
+- **Bootstrap 5.3.2**: UI components and responsive design
+- **Axios 1.6.2**: HTTP client for API requests
+- **i18next 25.7.1 & react-i18next**: Internationalization framework
+- **React Scripts**: Build tooling and development server
 
 ## Project Structure
 
@@ -63,11 +161,19 @@ SpoonacularUI/
 │   └── index.html
 ├── src/
 │   ├── components/
-│   │   └── RecipeSearch.js
-│   ├── App.js
+│   │   ├── RecipeSearch.js      # Search interface with filters and autocomplete
+│   │   ├── RecipeList.js        # Recipe grid display
+│   │   └── RecipeDetails.js     # Detailed recipe view with nutrition
+│   ├── config/
+│   │   └── api.js               # Centralized API configuration
+│   ├── utils/
+│   │   └── errorHandler.js      # Error message formatting utility
+│   ├── i18n.js                  # Internationalization configuration
+│   ├── App.js                   # Main app component with routing
 │   ├── App.css
 │   ├── index.js
 │   └── index.css
+├── .env.example                 # Environment variables template
 ├── package.json
 └── README.md
 ```

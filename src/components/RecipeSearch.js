@@ -1,9 +1,12 @@
 import React, { useReducer, useEffect, useRef } from 'react';
 import axios from 'axios';
 import RecipeList from './RecipeList';
+import ErrorModal from './ErrorModal';
 import { useTranslation } from 'react-i18next';
 import { API_ENDPOINTS } from '../config/api';
 import { formatErrorMessage } from '../utils/errorHandler';
+import { cuisines } from '../constants/cuisines';
+import { getCalorieOptions } from '../constants/calorieOptions';
 import '../i18n';
 
 // Action types
@@ -139,23 +142,7 @@ const RecipeSearch = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const cuisines = [
-    'African', 'Asian', 'American', 'British', 'Cajun', 'Caribbean', 
-    'Chinese', 'Eastern European', 'European', 'French', 'German', 
-    'Greek', 'Indian', 'Irish', 'Italian', 'Japanese', 'Jewish', 
-    'Korean', 'Latin American', 'Mediterranean', 'Mexican', 
-    'Middle Eastern', 'Nordic', 'Southern', 'Spanish', 'Thai', 'Vietnamese'
-  ];
-
-  const calorieOptions = [
-    { label: t('calories.max100'), value: 100 },
-    { label: t('calories.max200'), value: 200 },
-    { label: t('calories.max300'), value: 300 },
-    { label: t('calories.max400'), value: 400 },
-    { label: t('calories.max500'), value: 500 },
-    { label: t('calories.max600'), value: 600 },
-    { label: t('calories.max700'), value: 700 }
-  ];
+  const calorieOptions = getCalorieOptions(t);
 
   const handleSearch = async () => {
     if (!state.query.trim()) {

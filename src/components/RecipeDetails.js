@@ -209,7 +209,7 @@ const RecipeDetails = () => {
                   <div className="text-muted small">{t('recipeDetails.totalCalories')}</div>
                   <div className="fs-5 fw-bold">
                     <i className="bi bi-fire me-2 text-danger"></i>
-                    {totalCalories > 0 ? `${totalCalories.toFixed(1)} kcal` : 'Calculating...'}
+                    {totalCalories.toFixed(1)} kcal
                   </div>
                 </div>
               </div>

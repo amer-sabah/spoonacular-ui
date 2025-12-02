@@ -1,21 +1,79 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useReducer, useEffect, useRef } from 'react';
 import axios from 'axios';
 import RecipeList from './RecipeList';
 import { useTranslation } from 'react-i18next';
 import { API_ENDPOINTS } from '../config/api';
 import '../i18n';
 
+// Action types
+const ACTIONS = {
+  SET_QUERY: 'SET_QUERY',
+  SET_CUISINE: 'SET_CUISINE',
+  SET_MAX_CALORIES: 'SET_MAX_CALORIES',
+  SEARCH_START: 'SEARCH_START',
+  SEARCH_SUCCESS: 'SEARCH_SUCCESS',
+  SEARCH_ERROR: 'SEARCH_ERROR',
+  SUGGESTIONS_START: 'SUGGESTIONS_START',
+  SUGGESTIONS_SUCCESS: 'SUGGESTIONS_SUCCESS',
+  SUGGESTIONS_ERROR: 'SUGGESTIONS_ERROR',
+  SHOW_SUGGESTIONS: 'SHOW_SUGGESTIONS',
+  HIDE_SUGGESTIONS: 'HIDE_SUGGESTIONS',
+  CLEAR_ERROR: 'CLEAR_ERROR'
+};
+
+// Initial state
+const initialState = {
+  query: '',
+  cuisine: '',
+  maxCalories: '',
+  loading: false,
+  searchResults: null,
+  error: null,
+  suggestions: [],
+  showSuggestions: false,
+  loadingSuggestions: false
+};
+
+// Reducer function
+const searchReducer = (state, action) => {
+  switch (action.type) {
+    case ACTIONS.SET_QUERY:
+      return { ...state, query: action.payload };
+    case ACTIONS.SET_CUISINE:
+      return { ...state, cuisine: action.payload };
+    case ACTIONS.SET_MAX_CALORIES:
+      return { ...state, maxCalories: action.payload };
+    case ACTIONS.SEARCH_START:
+      return { ...state, loading: true, error: null, searchResults: null };
+    case ACTIONS.SEARCH_SUCCESS:
+      return { ...state, loading: false, searchResults: action.payload };
+    case ACTIONS.SEARCH_ERROR:
+      return { ...state, loading: false, error: action.payload };
+    case ACTIONS.SUGGESTIONS_START:
+      return { ...state, loadingSuggestions: true };
+    case ACTIONS.SUGGESTIONS_SUCCESS:
+      return { 
+        ...state, 
+        loadingSuggestions: false, 
+        suggestions: action.payload,
+        showSuggestions: true
+      };
+    case ACTIONS.SUGGESTIONS_ERROR:
+      return { ...state, loadingSuggestions: false, suggestions: [] };
+    case ACTIONS.SHOW_SUGGESTIONS:
+      return { ...state, showSuggestions: true };
+    case ACTIONS.HIDE_SUGGESTIONS:
+      return { ...state, showSuggestions: false };
+    case ACTIONS.CLEAR_ERROR:
+      return { ...state, error: null };
+    default:
+      return state;
+  }
+};
+
 const RecipeSearch = () => {
   const { t, i18n } = useTranslation();
-  const [query, setQuery] = useState('');
-  const [cuisine, setCuisine] = useState('');
-  const [maxCalories, setMaxCalories] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [searchResults, setSearchResults] = useState(null);
-  const [error, setError] = useState(null);
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [state, dispatch] = useReducer(searchReducer, initialState);
   const debounceTimer = useRef(null);
   const suggestionsRef = useRef(null);
 
@@ -27,7 +85,7 @@ const RecipeSearch = () => {
 
   // Debounced autocomplete search
   useEffect(() => {
-    if (query.trim().length >= 2) {
+    if (state.query.trim().length >= 2) {
       // Clear existing timer
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
@@ -35,26 +93,26 @@ const RecipeSearch = () => {
 
       // Set new timer
       debounceTimer.current = setTimeout(async () => {
-        setLoadingSuggestions(true);
+        dispatch({ type: ACTIONS.SUGGESTIONS_START });
         try {
           const response = await axios.get(API_ENDPOINTS.RECIPES_SEARCH, {
             params: {
-              query: query,
+              query: state.query,
               maxResultSize: 5
             }
           });
-          setSuggestions(response.data.results || []);
-          setShowSuggestions(true);
+          dispatch({ 
+            type: ACTIONS.SUGGESTIONS_SUCCESS, 
+            payload: response.data.results || [] 
+          });
         } catch (err) {
           console.error('Error fetching suggestions:', err);
-          setSuggestions([]);
-        } finally {
-          setLoadingSuggestions(false);
+          dispatch({ type: ACTIONS.SUGGESTIONS_ERROR });
         }
       }, 500); // 500ms debounce delay
     } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
+      dispatch({ type: ACTIONS.SUGGESTIONS_ERROR });
+      dispatch({ type: ACTIONS.HIDE_SUGGESTIONS });
     }
 
     return () => {
@@ -62,13 +120,13 @@ const RecipeSearch = () => {
         clearTimeout(debounceTimer.current);
       }
     };
-  }, [query]);
+  }, [state.query]);
 
   // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
-        setShowSuggestions(false);
+        dispatch({ type: ACTIONS.HIDE_SUGGESTIONS });
       }
     };
 
@@ -95,53 +153,52 @@ const RecipeSearch = () => {
   ];
 
   const handleSearch = async () => {
-    if (!query.trim()) {
-      setError(t('recipeSearch.errorEmpty'));
+    if (!state.query.trim()) {
+      dispatch({ type: ACTIONS.SEARCH_ERROR, payload: t('recipeSearch.errorEmpty') });
       return;
     }
 
-    setLoading(true);
-    setError(null);
-    setSearchResults(null);
+    dispatch({ type: ACTIONS.SEARCH_START });
 
     try {
       const params = {
-        query: query,
+        query: state.query,
         maxResultSize: 10
       };
 
       // Add optional filters if selected
-      if (cuisine) {
-        params.cuisine = cuisine;
+      if (state.cuisine) {
+        params.cuisine = state.cuisine;
       }
-      if (maxCalories) {
-        params.maxCalories = maxCalories;
+      if (state.maxCalories) {
+        params.maxCalories = state.maxCalories;
       }
 
       const response = await axios.get(API_ENDPOINTS.RECIPES_SEARCH, {
         params: params
       });
       
-      setSearchResults(response.data);
+      dispatch({ type: ACTIONS.SEARCH_SUCCESS, payload: response.data });
     } catch (err) {
       const errorMessage = err.response?.data || err.message;
       console.error('Error searching recipes:', errorMessage);
-      setError(`${t('recipeSearch.errorPrefix')} ${errorMessage}`);
-    } finally {
-      setLoading(false);
+      dispatch({ 
+        type: ACTIONS.SEARCH_ERROR, 
+        payload: `${t('recipeSearch.errorPrefix')} ${errorMessage}` 
+      });
     }
   };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
-      setShowSuggestions(false);
+      dispatch({ type: ACTIONS.HIDE_SUGGESTIONS });
     }
   };
 
   const handleSuggestionClick = (suggestion) => {
-    setQuery(suggestion.title);
-    setShowSuggestions(false);
+    dispatch({ type: ACTIONS.SET_QUERY, payload: suggestion.title });
+    dispatch({ type: ACTIONS.HIDE_SUGGESTIONS });
     // Optionally trigger search immediately
     setTimeout(() => {
       handleSearch();
@@ -179,14 +236,14 @@ const RecipeSearch = () => {
                   type="text"
                   className="form-control form-control-lg"
                   placeholder={t('recipeSearch.placeholder')}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  value={state.query}
+                  onChange={(e) => dispatch({ type: ACTIONS.SET_QUERY, payload: e.target.value })}
                   onKeyPress={handleKeyPress}
-                  onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                  disabled={loading}
+                  onFocus={() => state.suggestions.length > 0 && dispatch({ type: ACTIONS.SHOW_SUGGESTIONS })}
+                  disabled={state.loading}
                   autoComplete="off"
                 />
-                {showSuggestions && (suggestions.length > 0 || loadingSuggestions) && (
+                {state.showSuggestions && (state.suggestions.length > 0 || state.loadingSuggestions) && (
                   <div 
                     className="position-absolute w-100 bg-white border rounded shadow-lg" 
                     style={{ 
@@ -197,14 +254,14 @@ const RecipeSearch = () => {
                       marginTop: '4px'
                     }}
                   >
-                    {loadingSuggestions ? (
+                    {state.loadingSuggestions ? (
                       <div className="p-3 text-center text-muted">
                         <span className="spinner-border spinner-border-sm me-2" role="status"></span>
                         Loading suggestions...
                       </div>
                     ) : (
                       <ul className="list-group list-group-flush">
-                        {suggestions.map((suggestion) => (
+                        {state.suggestions.map((suggestion) => (
                           <li 
                             key={suggestion.id}
                             className="list-group-item list-group-item-action d-flex align-items-center" 
@@ -236,9 +293,9 @@ const RecipeSearch = () => {
               </label>
               <select
                 className="form-select"
-                value={cuisine}
-                onChange={(e) => setCuisine(e.target.value)}
-                disabled={loading}
+                value={state.cuisine}
+                onChange={(e) => dispatch({ type: ACTIONS.SET_CUISINE, payload: e.target.value })}
+                disabled={state.loading}
               >
                 <option value="">{t('recipeSearch.allCuisines')}</option>
                 {cuisines.map((c) => (
@@ -253,9 +310,9 @@ const RecipeSearch = () => {
               </label>
               <select
                 className="form-select"
-                value={maxCalories}
-                onChange={(e) => setMaxCalories(e.target.value)}
-                disabled={loading}
+                value={state.maxCalories}
+                onChange={(e) => dispatch({ type: ACTIONS.SET_MAX_CALORIES, payload: e.target.value })}
+                disabled={state.loading}
               >
                 <option value="">{t('recipeSearch.anyCalories')}</option>
                 {calorieOptions.map((option) => (
@@ -270,9 +327,9 @@ const RecipeSearch = () => {
               <button
                 className="btn btn-primary btn-lg w-100 search-btn"
                 onClick={handleSearch}
-                disabled={loading}
+                disabled={state.loading}
               >
-                {loading ? (
+                {state.loading ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     {t('recipeSearch.searching')}
@@ -287,15 +344,15 @@ const RecipeSearch = () => {
             </div>
           </div>
 
-          {error && (
+          {state.error && (
             <div className="alert alert-danger" role="alert">
-              {error}
+              {state.error}
             </div>
           )}
         </div>
       </div>
 
-      {searchResults && <RecipeList recipes={searchResults} />}
+      {state.searchResults && <RecipeList recipes={state.searchResults} />}
     </div>
   );
 };

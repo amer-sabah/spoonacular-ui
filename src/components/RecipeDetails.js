@@ -143,7 +143,7 @@ const RecipeDetails = () => {
           <i className="bi bi-arrow-left me-2"></i>
           {t('recipeDetails.backToSearch')}
         </button>
-        <div className="btn-group" role="group">
+        <div className="btn-group" role="group" style={{ direction: 'ltr' }}>
           <button 
             type="button" 
             className={`btn btn-sm ${i18n.language === 'en' ? 'btn-primary' : 'btn-outline-primary'}`}
@@ -235,7 +235,7 @@ const RecipeDetails = () => {
                         <div className="small">
                           <div className="mb-1">
                             <i className="bi bi-droplet me-1 text-primary"></i>
-                            <strong>Amount:</strong> {ingredient.measures?.metric?.amount} {ingredient.measures?.metric?.unitLong}
+                            <strong>{t('recipeDetails.amount')}:</strong> {ingredient.measures?.metric?.amount} {ingredient.measures?.metric?.unitLong}
                           </div>
                           {ingredientInfo && ingredientInfo !== null ? (
                             <>
@@ -274,7 +274,7 @@ const RecipeDetails = () => {
                             onChange={() => toggleIngredientExclusion(ingredient.id)}
                           />
                           <label className="form-check-label small text-muted" htmlFor={`ingredient-${ingredient.id}`}>
-                            {t('recipeDetails.excludeFromTotal')}
+                            {t('recipeDetails.excludeFromTotalCalories')}
                           </label>
                         </div>
                       </div>

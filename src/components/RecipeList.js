@@ -1,14 +1,18 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import '../i18n';
 
 const RecipeList = ({ recipes }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  
   if (!recipes || !recipes.results || recipes.results.length === 0) {
     return (
       <div className="card mt-4">
         <div className="card-body text-center text-muted">
           <i className="bi bi-search me-2"></i>
-          No recipes found. Try a different search term.
+          {t('recipeList.noResults')}
         </div>
       </div>
     );

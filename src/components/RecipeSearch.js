@@ -209,6 +209,10 @@ const RecipeSearch = () => {
     }, 100);
   };
 
+  const handleCloseErrorModal = () => {
+    dispatch({ type: ACTIONS.HIDE_ERROR_MODAL });
+  };
+
   return (
     <div className="search-container">
       <div className="card search-card">
@@ -354,42 +358,11 @@ const RecipeSearch = () => {
       {state.searchResults && <RecipeList recipes={state.searchResults} />}
 
       {/* Error Modal */}
-      {state.showErrorModal && state.error && (
-        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header bg-danger text-white">
-                <h5 className="modal-title">
-                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                  {state.error.title}
-                </h5>
-                <button 
-                  type="button" 
-                  className="btn-close btn-close-white" 
-                  onClick={() => dispatch({ type: ACTIONS.HIDE_ERROR_MODAL })}
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p className="mb-3">{state.error.message}</p>
-                <div className="alert alert-info mb-0">
-                  <i className="bi bi-info-circle me-2"></i>
-                  {state.error.action}
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary" 
-                  onClick={() => dispatch({ type: ACTIONS.HIDE_ERROR_MODAL })}
-                >
-                  {t('buttons.close')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ErrorModal
+        show={state.showErrorModal}
+        error={state.error}
+        onClose={handleCloseErrorModal}
+      />
     </div>
   );
 };

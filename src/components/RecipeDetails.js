@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
+import ErrorModal from './ErrorModal';
 import { API_ENDPOINTS } from '../config/api';
 import { formatErrorMessage } from '../utils/errorHandler';
 import '../i18n';
@@ -110,42 +111,12 @@ const RecipeDetails = () => {
         </button>
         
         {/* Error Modal */}
-        {showErrorModal && (
-          <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content">
-                <div className="modal-header bg-danger text-white">
-                  <h5 className="modal-title">
-                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                    {error.title}
-                  </h5>
-                  <button 
-                    type="button" 
-                    className="btn-close btn-close-white" 
-                    onClick={handleCloseErrorModal}
-                    aria-label="Close"
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  <p className="mb-3">{error.message}</p>
-                  <div className="alert alert-info mb-0">
-                    <i className="bi bi-info-circle me-2"></i>
-                    {error.action}
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary" 
-                    onClick={handleCloseErrorModal}
-                  >
-                    {t('buttons.backToSearch')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <ErrorModal
+          show={showErrorModal}
+          error={error}
+          onClose={handleCloseErrorModal}
+          closeButtonText={t('buttons.backToSearch')}
+        />
       </div>
     );
   }
@@ -164,34 +135,14 @@ const RecipeDetails = () => {
           <i className="bi bi-arrow-left me-2"></i>
           {t('recipeDetails.backToSearch')}
         </button>
-        <div className="modal show d-block position-relative" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header bg-warning text-dark">
-                <h5 className="modal-title">
-                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                  {notFoundError.title}
-                </h5>
-              </div>
-              <div className="modal-body">
-                <p className="mb-3">{notFoundError.message}</p>
-                <div className="alert alert-info mb-0">
-                  <i className="bi bi-info-circle me-2"></i>
-                  {notFoundError.action}
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary" 
-                  onClick={() => navigate('/')}
-                >
-                  {t('buttons.backToSearch')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ErrorModal
+          show={true}
+          error={notFoundError}
+          onClose={() => navigate('/')}
+          closeButtonText={t('buttons.backToSearch')}
+          type="warning"
+          showCloseButton={false}
+        />
       </div>
     );
   }

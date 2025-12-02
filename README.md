@@ -163,11 +163,18 @@ SpoonacularUI/
 │   ├── components/
 │   │   ├── RecipeSearch.js      # Search interface with filters and autocomplete
 │   │   ├── RecipeList.js        # Recipe grid display
-│   │   └── RecipeDetails.js     # Detailed recipe view with nutrition
+│   │   ├── RecipeListItem.js    # Individual recipe card component
+│   │   ├── RecipeDetails.js     # Detailed recipe view with nutrition
+│   │   ├── ErrorModal.js        # Reusable error modal component
+│   │   └── LanguageSwitcher.js  # Language toggle component (English/Arabic)
 │   ├── config/
 │   │   └── api.js               # Centralized API configuration
+│   ├── constants/
+│   │   ├── cuisines.js          # Reusable cuisine options
+│   │   └── calorieOptions.js    # Reusable calorie filter options
 │   ├── utils/
-│   │   └── errorHandler.js      # Error message formatting utility
+│   │   ├── errorHandler.js      # Error message formatting utility
+│   │   └── languageHelper.js    # Language switching utility
 │   ├── i18n.js                  # Internationalization configuration
 │   ├── App.js                   # Main app component with routing
 │   ├── App.css

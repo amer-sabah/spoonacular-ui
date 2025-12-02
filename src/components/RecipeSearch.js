@@ -3,6 +3,7 @@ import axios from 'axios';
 import RecipeList from './RecipeList';
 import { useTranslation } from 'react-i18next';
 import { API_ENDPOINTS } from '../config/api';
+import { formatErrorMessage } from '../utils/errorHandler';
 import '../i18n';
 
 // Action types
@@ -18,7 +19,8 @@ const ACTIONS = {
   SUGGESTIONS_ERROR: 'SUGGESTIONS_ERROR',
   SHOW_SUGGESTIONS: 'SHOW_SUGGESTIONS',
   HIDE_SUGGESTIONS: 'HIDE_SUGGESTIONS',
-  CLEAR_ERROR: 'CLEAR_ERROR'
+  CLEAR_ERROR: 'CLEAR_ERROR',
+  HIDE_ERROR_MODAL: 'HIDE_ERROR_MODAL'
 };
 
 // Initial state
@@ -29,6 +31,7 @@ const initialState = {
   loading: false,
   searchResults: null,
   error: null,
+  showErrorModal: false,
   suggestions: [],
   showSuggestions: false,
   loadingSuggestions: false
@@ -48,7 +51,9 @@ const searchReducer = (state, action) => {
     case ACTIONS.SEARCH_SUCCESS:
       return { ...state, loading: false, searchResults: action.payload };
     case ACTIONS.SEARCH_ERROR:
-      return { ...state, loading: false, error: action.payload };
+      return { ...state, loading: false, error: action.payload, showErrorModal: true };
+    case ACTIONS.HIDE_ERROR_MODAL:
+      return { ...state, showErrorModal: false };
     case ACTIONS.SUGGESTIONS_START:
       return { ...state, loadingSuggestions: true };
     case ACTIONS.SUGGESTIONS_SUCCESS:
@@ -180,11 +185,10 @@ const RecipeSearch = () => {
       
       dispatch({ type: ACTIONS.SEARCH_SUCCESS, payload: response.data });
     } catch (err) {
-      const errorMessage = err.response?.data || err.message;
-      console.error('Error searching recipes:', errorMessage);
+      const formattedError = formatErrorMessage(err);
       dispatch({ 
         type: ACTIONS.SEARCH_ERROR, 
-        payload: `${t('recipeSearch.errorPrefix')} ${errorMessage}` 
+        payload: formattedError 
       });
     }
   };
@@ -344,15 +348,48 @@ const RecipeSearch = () => {
             </div>
           </div>
 
-          {state.error && (
-            <div className="alert alert-danger" role="alert">
-              {state.error}
-            </div>
-          )}
         </div>
       </div>
 
       {state.searchResults && <RecipeList recipes={state.searchResults} />}
+
+      {/* Error Modal */}
+      {state.showErrorModal && state.error && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-danger text-white">
+                <h5 className="modal-title">
+                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                  {state.error.title}
+                </h5>
+                <button 
+                  type="button" 
+                  className="btn-close btn-close-white" 
+                  onClick={() => dispatch({ type: ACTIONS.HIDE_ERROR_MODAL })}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p className="mb-3">{state.error.message}</p>
+                <div className="alert alert-info mb-0">
+                  <i className="bi bi-info-circle me-2"></i>
+                  {state.error.action}
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => dispatch({ type: ACTIONS.HIDE_ERROR_MODAL })}
+                >
+                  {t('buttons.close')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

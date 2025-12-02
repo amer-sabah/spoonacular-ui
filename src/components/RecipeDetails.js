@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { API_ENDPOINTS } from '../config/api';
+import { formatErrorMessage } from '../utils/errorHandler';
 import '../i18n';
 
 const RecipeDetails = () => {
@@ -15,6 +16,7 @@ const RecipeDetails = () => {
   const [ingredientsLoading, setIngredientsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
   const toggleIngredientExclusion = (ingredientId) => {
     setExcludedIngredients(prev => ({
@@ -41,9 +43,9 @@ const RecipeDetails = () => {
         fetchIngredientsData(recipeData.extendedIngredients);
       }
     } catch (err) {
-      const errorMessage = err.response?.data || err.message;
-      console.error('Error fetching recipe details:', errorMessage);
-      setError(`Error: ${errorMessage}`);
+      const formattedError = formatErrorMessage(err);
+      setError(formattedError);
+      setShowErrorModal(true);
     } finally {
       setLoading(false);
     }
@@ -81,7 +83,13 @@ const RecipeDetails = () => {
     document.documentElement.lang = lng;
   };
 
-  if (loading) {
+  const handleCloseErrorModal = () => {
+    setShowErrorModal(false);
+    navigate('/');
+  };
+
+  // Show loading spinner only when loading and no error
+  if (loading && !error) {
     return (
       <div className="container mt-5 text-center">
         <div className="spinner-border text-primary" role="status">
@@ -92,30 +100,98 @@ const RecipeDetails = () => {
     );
   }
 
+  // If there's an error, show error modal with back button
   if (error) {
     return (
       <div className="container mt-5">
-        <div className="alert alert-danger" role="alert">
-          {error}
-        </div>
-        <button className="btn btn-primary" onClick={() => navigate('/')}>
+        <button className="btn btn-primary mb-3" onClick={() => navigate('/')}>
           <i className="bi bi-arrow-left me-2"></i>
           {t('recipeDetails.backToSearch')}
         </button>
+        
+        {/* Error Modal */}
+        {showErrorModal && (
+          <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header bg-danger text-white">
+                  <h5 className="modal-title">
+                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                    {error.title}
+                  </h5>
+                  <button 
+                    type="button" 
+                    className="btn-close btn-close-white" 
+                    onClick={handleCloseErrorModal}
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <p className="mb-3">{error.message}</p>
+                  <div className="alert alert-info mb-0">
+                    <i className="bi bi-info-circle me-2"></i>
+                    {error.action}
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={handleCloseErrorModal}
+                  >
+                    {t('buttons.backToSearch')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
+  // Recipe not found
   if (!recipe) {
+    const notFoundError = {
+      title: t('errors.recipeNotFound.title'),
+      message: t('errors.recipeNotFound.message'),
+      action: t('errors.recipeNotFound.action')
+    };
+    
     return (
       <div className="container mt-5">
-        <div className="alert alert-warning" role="alert">
-          {t('recipeDetails.error')}
-        </div>
-        <button className="btn btn-primary" onClick={() => navigate('/')}>
+        <button className="btn btn-primary mb-3" onClick={() => navigate('/')}>
           <i className="bi bi-arrow-left me-2"></i>
           {t('recipeDetails.backToSearch')}
         </button>
+        <div className="modal show d-block position-relative" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-warning text-dark">
+                <h5 className="modal-title">
+                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                  {notFoundError.title}
+                </h5>
+              </div>
+              <div className="modal-body">
+                <p className="mb-3">{notFoundError.message}</p>
+                <div className="alert alert-info mb-0">
+                  <i className="bi bi-info-circle me-2"></i>
+                  {notFoundError.action}
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => navigate('/')}
+                >
+                  {t('buttons.backToSearch')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -307,6 +383,44 @@ const RecipeDetails = () => {
                 </ol>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Error Modal */}
+      {showErrorModal && error && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-danger text-white">
+                <h5 className="modal-title">
+                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                  {error.title}
+                </h5>
+                <button 
+                  type="button" 
+                  className="btn-close btn-close-white" 
+                  onClick={handleCloseErrorModal}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p className="mb-3">{error.message}</p>
+                <div className="alert alert-info mb-0">
+                  <i className="bi bi-info-circle me-2"></i>
+                  {error.action}
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={handleCloseErrorModal}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

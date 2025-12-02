@@ -77,6 +77,47 @@ const resources = {
         max500: "Max 500 Calories",
         max600: "Max 600 Calories",
         max700: "Max 700 Calories"
+      },
+      buttons: {
+        close: "Close",
+        backToSearch: "Back to Search"
+      },
+      errors: {
+        rateLimit: {
+          title: "Daily API Limit Reached",
+          message: "Your daily points limit of 50 has been reached. Please upgrade your plan to continue using the API.",
+          action: "Please contact support for assistance or upgrade your subscription."
+        },
+        network: {
+          title: "Connection Error",
+          message: "Unable to connect to the server. Please check your internet connection and try again.",
+          action: "If the problem persists, please contact support."
+        },
+        server: {
+          title: "Server Error",
+          message: "We're experiencing technical difficulties. Our team has been notified.",
+          action: "Please try again in a few moments or contact support if the issue continues."
+        },
+        notFound: {
+          title: "Not Found",
+          message: "The requested recipe could not be found.",
+          action: "Please try searching for a different recipe."
+        },
+        unauthorized: {
+          title: "Access Denied",
+          message: "You don't have permission to access this resource.",
+          action: "Please contact support for assistance."
+        },
+        generic: {
+          title: "Something Went Wrong",
+          message: "We encountered an unexpected error while processing your request.",
+          action: "Please try again or contact support if the problem persists."
+        },
+        recipeNotFound: {
+          title: "Recipe Not Found",
+          message: "The requested recipe could not be found in our database.",
+          action: "Please try searching for a different recipe or return to the search page."
+        }
       }
     }
   },
@@ -155,6 +196,47 @@ const resources = {
         max500: "حد أقصى 500 سعرة حرارية",
         max600: "حد أقصى 600 سعرة حرارية",
         max700: "حد أقصى 700 سعرة حرارية"
+      },
+      buttons: {
+        close: "إغلاق",
+        backToSearch: "العودة للبحث"
+      },
+      errors: {
+        rateLimit: {
+          title: "تم الوصول إلى الحد اليومي",
+          message: "لقد وصلت إلى الحد اليومي من النقاط وهو 50. يرجى ترقية خطتك لمواصلة استخدام الخدمة.",
+          action: "يرجى الاتصال بالدعم للحصول على المساعدة أو ترقية اشتراكك."
+        },
+        network: {
+          title: "خطأ في الاتصال",
+          message: "غير قادر على الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
+          action: "إذا استمرت المشكلة، يرجى الاتصال بالدعم."
+        },
+        server: {
+          title: "خطأ في الخادم",
+          message: "نواجه صعوبات تقنية. تم إخطار فريقنا.",
+          action: "يرجى المحاولة مرة أخرى بعد قليل أو الاتصال بالدعم إذا استمرت المشكلة."
+        },
+        notFound: {
+          title: "غير موجود",
+          message: "لم يتم العثور على الوصفة المطلوبة.",
+          action: "يرجى البحث عن وصفة مختلفة."
+        },
+        unauthorized: {
+          title: "تم رفض الوصول",
+          message: "ليس لديك إذن للوصول إلى هذا المورد.",
+          action: "يرجى الاتصال بالدعم للحصول على المساعدة."
+        },
+        generic: {
+          title: "حدث خطأ ما",
+          message: "واجهنا خطأ غير متوقع أثناء معالجة طلبك.",
+          action: "يرجى المحاولة مرة أخرى أو الاتصال بالدعم إذا استمرت المشكلة."
+        },
+        recipeNotFound: {
+          title: "الوصفة غير موجودة",
+          message: "لم يتم العثور على الوصفة المطلوبة في قاعدة البيانات.",
+          action: "يرجى البحث عن وصفة مختلفة أو العودة إلى صفحة البحث."
+        }
       }
     }
   }

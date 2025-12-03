@@ -9,9 +9,11 @@ import { formatErrorMessage } from '../utils/errorHandler';
 import '../i18n';
 
 const RecipeDetails = () => {
+  // ==================== Hooks ====================
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  
   const [recipe, setRecipe] = useState(null);
   const [ingredientsData, setIngredientsData] = useState({});
   const [excludedIngredients, setExcludedIngredients] = useState({});
@@ -20,17 +22,23 @@ const RecipeDetails = () => {
   const [error, setError] = useState(null);
   const [showErrorModal, setShowErrorModal] = useState(false);
 
-  const toggleIngredientExclusion = (ingredientId) => {
-    setExcludedIngredients(prev => ({
-      ...prev,
-      [ingredientId]: !prev[ingredientId]
-    }));
-  };
+  // ==================== Computed Values ====================
+  const totalCalories = recipe?.extendedIngredients?.reduce((total, ingredient) => {
+    if (excludedIngredients[ingredient.id]) {
+      return total;
+    }
+    
+    const ingredientInfo = ingredientsData[ingredient.id];
+    if (ingredientInfo && ingredientInfo.nutrition?.nutrients) {
+      const caloriesNutrient = ingredientInfo.nutrition.nutrients.find(n => n.name === 'Calories');
+      if (caloriesNutrient) {
+        return total + (caloriesNutrient.amount || 0);
+      }
+    }
+    return total;
+  }, 0) || 0;
 
-  useEffect(() => {
-    fetchRecipeDetails();
-  }, [id]);
-
+  // ==================== API Calls ====================
   const fetchRecipeDetails = async () => {
     setLoading(true);
     setError(null);
@@ -79,11 +87,12 @@ const RecipeDetails = () => {
     setIngredientsLoading(false);
   };
 
-  const handleCloseErrorModal = () => {
-    setShowErrorModal(false);
-    navigate('/');
-  };
+  // ==================== Effects ====================
+  useEffect(() => {
+    fetchRecipeDetails();
+  }, [id]);
 
+  // ==================== Early Returns ====================
   // Show loading spinner only when loading and no error
   if (loading && !error) {
     return (
@@ -142,22 +151,18 @@ const RecipeDetails = () => {
     );
   }
 
-  // Calculate total calories from all ingredients (excluding unchecked ones)
-  const totalCalories = recipe?.extendedIngredients?.reduce((total, ingredient) => {
-    // Skip if ingredient is excluded
-    if (excludedIngredients[ingredient.id]) {
-      return total;
-    }
-    
-    const ingredientInfo = ingredientsData[ingredient.id];
-    if (ingredientInfo && ingredientInfo.nutrition?.nutrients) {
-      const caloriesNutrient = ingredientInfo.nutrition.nutrients.find(n => n.name === 'Calories');
-      if (caloriesNutrient) {
-        return total + (caloriesNutrient.amount || 0);
-      }
-    }
-    return total;
-  }, 0) || 0;
+  // ==================== Event Handlers ====================
+  const toggleIngredientExclusion = (ingredientId) => {
+    setExcludedIngredients(prev => ({
+      ...prev,
+      [ingredientId]: !prev[ingredientId]
+    }));
+  };
+
+  const handleCloseErrorModal = () => {
+    setShowErrorModal(false);
+    navigate('/');
+  };
 
   // ==================== Render Helpers ====================
 
@@ -338,6 +343,7 @@ const RecipeDetails = () => {
     );
   };
 
+  // ==================== Main Render ====================
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -354,7 +360,6 @@ const RecipeDetails = () => {
 
       {renderInstructions()}
 
-      {/* Error Modal */}
       <ErrorModal
         show={showErrorModal}
         error={error}

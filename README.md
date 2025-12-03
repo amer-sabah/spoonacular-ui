@@ -177,6 +177,28 @@ See `.env.example` for reference.
 - **i18next 25.7.1 & react-i18next**: Internationalization framework
 - **React Scripts**: Build tooling and development server
 
+## Design Decisions
+
+### 1. Using Bootstrap to Build a Responsive App Quickly
+
+**Rapid Development**: Bootstrap's pre-built components and grid system allow for faster development. This helps in setting up a professional-looking UI with minimal custom CSS.
+
+**Responsive Design**: Bootstrap's responsive utilities ensure that the app looks good on various screen sizes without significant effort. This enhances user experience across devices.
+
+**Consistency**: Utilizing Bootstrap encourages design consistency across different components and pages, providing a uniform look and feel.
+
+**Community Support**: Bootstrap has a vast community and extensive documentation, making it easier to find resources and examples to solve design challenges quickly.
+
+### 2. Using useReducer for Recipe Search Component Instead of useState
+
+**Complex State Management**: The useReducer hook is advantageous for managing complex state logic, particularly when dealing with multiple state variables, such as filters and search results.
+
+**Centralized State Logic**: It helps keep the state logic more organized and centralized. This is especially beneficial in a recipe search component, where the state may involve various actions (e.g., updating filters, loading results).
+
+**Improved Readability**: Code readability improves as the reducer function clearly defines how the state transitions occur, making it easier for other developers to understand.
+
+**Easier Testing**: This pattern makes it easier to test the state management logic since it separates the logic in a function, allowing for more straightforward unit tests.
+
 ## Project Structure
 
 ```

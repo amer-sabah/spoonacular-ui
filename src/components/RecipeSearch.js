@@ -89,6 +89,7 @@ const RecipeSearch = () => {
 
   // ==================== Computed Values ====================
   const calorieOptions = getCalorieOptions(t);
+  const isSearchDisabled = (!state.query || !state.query.trim()) && !state.cuisine && !state.maxCalories;
 
   // ==================== API Calls ====================
   const fetchAutocompleteSuggestions = async (query) => {
@@ -111,7 +112,7 @@ const RecipeSearch = () => {
   };
 
   const handleSearch = async () => {
-    if (!state.query.trim()) {
+    if ((!state.query || !state.query.trim()) && !state.cuisine && !state.maxCalories) {
       dispatch({ type: ACTIONS.SEARCH_ERROR, payload: t('recipeSearch.errorEmpty') });
       return;
     }
@@ -120,7 +121,7 @@ const RecipeSearch = () => {
 
     try {
       const params = {
-        query: state.query,
+        query: state.query && state.query.trim() ? state.query.trim() : '',
         maxResultSize: 10
       };
 
@@ -255,7 +256,7 @@ const RecipeSearch = () => {
           <button
             className="btn btn-primary btn-lg w-100 search-btn"
             onClick={handleSearch}
-            disabled={state.loading}
+            disabled={state.loading || isSearchDisabled}
           >
             {state.loading ? (
               <>

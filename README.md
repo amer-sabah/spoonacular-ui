@@ -72,15 +72,39 @@ npm start
 
 ### Search for Recipes
 
-1. **Enter Search Query**: Type a recipe name in the search box (e.g., "pasta", "chicken", "salad")
+#### Search Logic
+
+The search functionality provides flexible filtering options:
+
+- **Query Only**: Search by recipe name or keywords (e.g., "pasta", "chicken salad")
+- **Filters Only**: Search using just cuisine type and/or calorie limit without entering a search query
+- **Combined Search**: Use both query and filters together for precise results
+
+**Search Button Behavior**:
+- The search button is **enabled** when at least one of the following is provided:
+  - Recipe name/keywords in the search box
+  - A cuisine type is selected
+  - A maximum calorie limit is selected
+- The search button is **disabled** only when all three fields are empty
+
+**How It Works**:
+1. User can search with any combination of: query text, cuisine filter, and/or calorie filter
+2. The `query` parameter is always sent to the API (as an empty string if not provided)
+3. Cuisine and calorie filters are sent as optional parameters when selected
+4. The backend processes the search based on the combination of parameters provided
+
+#### Step-by-Step Guide
+
+1. **Enter Search Query** (Optional): Type a recipe name in the search box (e.g., "pasta", "chicken", "salad")
    - As you type, autocomplete suggestions will appear with recipe thumbnails after 500ms
    - Click on a suggestion to quickly select it
 
-2. **Apply Filters** (Optional):
+2. **Apply Filters** (Optional but at least one search criterion required):
    - **Cuisine**: Select a specific cuisine from the dropdown (Italian, Chinese, Mexican, etc.)
    - **Max Calories**: Choose a calorie limit (100, 200, 300, 400, 500, 600, or 700 kcal)
 
 3. **Search**: Click the "Search" button or press Enter
+   - The button is only enabled when you have at least a query, cuisine, or calorie filter
    - A loading spinner will appear while fetching results
 
 4. **Browse Results**: View recipe cards in a responsive grid layout

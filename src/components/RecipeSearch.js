@@ -206,6 +206,48 @@ const RecipeSearch = () => {
     return setupClickOutsideListener();
   }, []);
 
+  // ==================== Render Helpers ====================
+  const renderFilters = () => {
+    return (
+      <div className="row g-3 mb-3">
+        <div className="col-md-6">
+          <label className="form-label small text-muted">
+            <i className="bi bi-globe me-1"></i>
+            {t('recipeSearch.cuisineLabel')}
+          </label>
+          <select
+            className="form-select"
+            value={state.cuisine}
+            onChange={(e) => dispatch({ type: ACTIONS.SET_CUISINE, payload: e.target.value })}
+            disabled={state.loading}
+          >
+            <option value="">{t('recipeSearch.allCuisines')}</option>
+            {cuisines.map((c) => (
+              <option key={c} value={c}>{t(`cuisines.${c}`)}</option>
+            ))}
+          </select>
+        </div>
+        <div className="col-md-6">
+          <label className="form-label small text-muted">
+            <i className="bi bi-fire me-1"></i>
+            {t('recipeSearch.maxCaloriesLabel')}
+          </label>
+          <select
+            className="form-select"
+            value={state.maxCalories}
+            onChange={(e) => dispatch({ type: ACTIONS.SET_MAX_CALORIES, payload: e.target.value })}
+            disabled={state.loading}
+          >
+            <option value="">{t('recipeSearch.anyCalories')}</option>
+            {calorieOptions.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="search-container">
       <div className="card search-card">
@@ -271,42 +313,7 @@ const RecipeSearch = () => {
             </div>
           </div>
 
-          <div className="row g-3 mb-3">
-            <div className="col-md-6">
-              <label className="form-label small text-muted">
-                <i className="bi bi-globe me-1"></i>
-                {t('recipeSearch.cuisineLabel')}
-              </label>
-              <select
-                className="form-select"
-                value={state.cuisine}
-                onChange={(e) => dispatch({ type: ACTIONS.SET_CUISINE, payload: e.target.value })}
-                disabled={state.loading}
-              >
-                <option value="">{t('recipeSearch.allCuisines')}</option>
-                {cuisines.map((c) => (
-                  <option key={c} value={c}>{t(`cuisines.${c}`)}</option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-6">
-              <label className="form-label small text-muted">
-                <i className="bi bi-fire me-1"></i>
-                {t('recipeSearch.maxCaloriesLabel')}
-              </label>
-              <select
-                className="form-select"
-                value={state.maxCalories}
-                onChange={(e) => dispatch({ type: ACTIONS.SET_MAX_CALORIES, payload: e.target.value })}
-                disabled={state.loading}
-              >
-                <option value="">{t('recipeSearch.anyCalories')}</option>
-                {calorieOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+          {renderFilters()}
 
           <div className="row g-3 mb-3">
             <div className="col-md-12">

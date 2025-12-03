@@ -274,6 +274,67 @@ const RecipeSearch = () => {
     );
   };
 
+  const renderSearchInput = () => {
+    return (
+      <input
+        type="text"
+        className="form-control form-control-lg"
+        placeholder={t('recipeSearch.placeholder')}
+        value={state.query}
+        onChange={(e) => dispatch({ type: ACTIONS.SET_QUERY, payload: e.target.value })}
+        onKeyPress={handleKeyPress}
+        onFocus={() => state.suggestions.length > 0 && dispatch({ type: ACTIONS.SHOW_SUGGESTIONS })}
+        disabled={state.loading}
+        autoComplete="off"
+      />
+    );
+  };
+
+  const renderSuggestions = () => {
+    if (!state.showSuggestions || (state.suggestions.length === 0 && !state.loadingSuggestions)) {
+      return null;
+    }
+
+    return (
+      <div 
+        className="position-absolute w-100 bg-white border rounded shadow-lg" 
+        style={{ 
+          top: '100%', 
+          zIndex: 1000, 
+          maxHeight: '300px', 
+          overflowY: 'auto',
+          marginTop: '4px'
+        }}
+      >
+        {state.loadingSuggestions ? (
+          <div className="p-3 text-center text-muted">
+            <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+            Loading suggestions...
+          </div>
+        ) : (
+          <ul className="list-group list-group-flush">
+            {state.suggestions.map((suggestion) => (
+              <li 
+                key={suggestion.id}
+                className="list-group-item list-group-item-action d-flex align-items-center" 
+                style={{ cursor: 'pointer' }}
+                onClick={() => handleSuggestionClick(suggestion)}
+              >
+                <img 
+                  src={suggestion.image} 
+                  alt={suggestion.title}
+                  style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                  className="rounded me-3"
+                />
+                <span>{suggestion.title}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="search-container">
       <div className="card search-card">
@@ -286,55 +347,8 @@ const RecipeSearch = () => {
           <div className="row g-3 mb-3">
             <div className="col-md-12">
               <div className="position-relative" ref={suggestionsRef}>
-                <input
-                  type="text"
-                  className="form-control form-control-lg"
-                  placeholder={t('recipeSearch.placeholder')}
-                  value={state.query}
-                  onChange={(e) => dispatch({ type: ACTIONS.SET_QUERY, payload: e.target.value })}
-                  onKeyPress={handleKeyPress}
-                  onFocus={() => state.suggestions.length > 0 && dispatch({ type: ACTIONS.SHOW_SUGGESTIONS })}
-                  disabled={state.loading}
-                  autoComplete="off"
-                />
-                {state.showSuggestions && (state.suggestions.length > 0 || state.loadingSuggestions) && (
-                  <div 
-                    className="position-absolute w-100 bg-white border rounded shadow-lg" 
-                    style={{ 
-                      top: '100%', 
-                      zIndex: 1000, 
-                      maxHeight: '300px', 
-                      overflowY: 'auto',
-                      marginTop: '4px'
-                    }}
-                  >
-                    {state.loadingSuggestions ? (
-                      <div className="p-3 text-center text-muted">
-                        <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                        Loading suggestions...
-                      </div>
-                    ) : (
-                      <ul className="list-group list-group-flush">
-                        {state.suggestions.map((suggestion) => (
-                          <li 
-                            key={suggestion.id}
-                            className="list-group-item list-group-item-action d-flex align-items-center" 
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => handleSuggestionClick(suggestion)}
-                          >
-                            <img 
-                              src={suggestion.image} 
-                              alt={suggestion.title}
-                              style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                              className="rounded me-3"
-                            />
-                            <span>{suggestion.title}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                )}
+                {renderSearchInput()}
+                {renderSuggestions()}
               </div>
             </div>
           </div>

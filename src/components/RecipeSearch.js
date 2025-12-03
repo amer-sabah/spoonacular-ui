@@ -248,6 +248,32 @@ const RecipeSearch = () => {
     );
   };
 
+  const renderSearchButton = () => {
+    return (
+      <div className="row g-3 mb-3">
+        <div className="col-md-12">
+          <button
+            className="btn btn-primary btn-lg w-100 search-btn"
+            onClick={handleSearch}
+            disabled={state.loading}
+          >
+            {state.loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                {t('recipeSearch.searching')}
+              </>
+            ) : (
+              <>
+                <i className="bi bi-search me-2"></i>
+                {t('recipeSearch.searchButton')}
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="search-container">
       <div className="card search-card">
@@ -315,27 +341,7 @@ const RecipeSearch = () => {
 
           {renderFilters()}
 
-          <div className="row g-3 mb-3">
-            <div className="col-md-12">
-              <button
-                className="btn btn-primary btn-lg w-100 search-btn"
-                onClick={handleSearch}
-                disabled={state.loading}
-              >
-                {state.loading ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    {t('recipeSearch.searching')}
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-search me-2"></i>
-                    {t('recipeSearch.searchButton')}
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
+          {renderSearchButton()}
 
         </div>
       </div>

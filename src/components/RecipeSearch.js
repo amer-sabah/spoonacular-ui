@@ -81,16 +81,16 @@ const searchReducer = (state, action) => {
 };
 
 const RecipeSearch = () => {
-  // Hooks
-  const { t, i18n } = useTranslation();
+  // ==================== Hooks ====================
+  const { t } = useTranslation();
   const [state, dispatch] = useReducer(searchReducer, initialState);
   const debounceTimer = useRef(null);
   const suggestionsRef = useRef(null);
 
-  // Computed values
+  // ==================== Computed Values ====================
   const calorieOptions = getCalorieOptions(t);
 
-  // API calls
+  // ==================== API Calls ====================
   const fetchAutocompleteSuggestions = async (query) => {
     dispatch({ type: ACTIONS.SUGGESTIONS_START });
     try {
@@ -146,7 +146,7 @@ const RecipeSearch = () => {
     }
   };
 
-  // Event handlers
+  // ==================== Event Handlers ====================
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -166,7 +166,7 @@ const RecipeSearch = () => {
     dispatch({ type: ACTIONS.HIDE_ERROR_MODAL });
   };
 
-  // Helper functions
+  // ==================== Helper Functions ====================
   const setupClickOutsideListener = () => {
     const handleClickOutside = (event) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
@@ -178,7 +178,7 @@ const RecipeSearch = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   };
 
-  // Effects
+  // ==================== Effects ====================
   // Debounced autocomplete search
   useEffect(() => {
     if (state.query.trim().length >= 2) {
@@ -335,6 +335,7 @@ const RecipeSearch = () => {
     );
   };
 
+  // ==================== Main Render ====================
   return (
     <div className="search-container">
       <div className="card search-card">

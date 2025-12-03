@@ -224,6 +224,91 @@ const RecipeDetails = () => {
     );
   };
 
+  const renderIngredientExcludeToggle = (ingredient) => {
+    return (
+      <div className="form-check form-switch mt-2 pt-2 border-top">
+        <input 
+          className="form-check-input" 
+          type="checkbox" 
+          id={`ingredient-${ingredient.id}`}
+          checked={excludedIngredients[ingredient.id] || false}
+          onChange={() => toggleIngredientExclusion(ingredient.id)}
+        />
+        <label className="form-check-label small text-muted" htmlFor={`ingredient-${ingredient.id}`}>
+          {t('recipeDetails.excludeFromTotalCalories')}
+        </label>
+      </div>
+    );
+  };
+
+  const renderIngredientCard = (ingredient) => {
+    const ingredientInfo = ingredientsData[ingredient.id];
+    
+    return (
+      <div key={ingredient.id} className="col-md-6 mb-3">
+        <div className="card h-100">
+          <div className="card-body">
+            <h6 className="card-subtitle mb-2 text-dark">{ingredient.originalName}</h6>
+            <div className="small">
+              <div className="mb-1">
+                <i className="bi bi-droplet me-1 text-primary"></i>
+                <strong>{t('recipeDetails.amount')}:</strong> {ingredient.measures?.metric?.amount} {ingredient.measures?.metric?.unitLong}
+              </div>
+              {ingredientInfo && ingredientInfo !== null ? (
+                <>
+                  {ingredientInfo.estimatedCost?.value && (
+                    <div className="mb-1">
+                      <i className="bi bi-currency-dollar me-1 text-success"></i>
+                      <strong>{t('recipeDetails.cost')}:</strong> ${(ingredientInfo.estimatedCost.value / 100).toFixed(2)}
+                    </div>
+                  )}
+                  {ingredientInfo.nutrition?.nutrients && (
+                    <>
+                      {ingredientInfo.nutrition.nutrients
+                        .filter(n => n.name === 'Calories')
+                        .map((nutrient, idx) => (
+                          <div key={idx} className="mb-1">
+                            <i className="bi bi-fire me-1 text-danger"></i>
+                            <strong>{t('recipeDetails.calories')}:</strong> {nutrient.amount} {nutrient.unit}
+                          </div>
+                        ))
+                      }
+                    </>
+                  )}
+                </>
+              ) : ingredientsLoading ? (
+                <div className="text-muted fst-italic">
+                  <small>{t('recipeDetails.loadingIngredient')}</small>
+                </div>
+              ) : null}
+            </div>
+            {renderIngredientExcludeToggle(ingredient)}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderIngredients = () => {
+    if (!recipe.extendedIngredients || recipe.extendedIngredients.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="card mt-4">
+        <div className="card-body">
+          <h4 className="card-title mb-4">
+            <i className="bi bi-basket me-2"></i>
+            {t('recipeDetails.ingredients')}
+          </h4>
+          <div className="row">
+            {recipe.extendedIngredients.map((ingredient) => renderIngredientCard(ingredient))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -236,75 +321,7 @@ const RecipeDetails = () => {
 
       {renderRecipeHeader()}
 
-      {recipe.extendedIngredients && recipe.extendedIngredients.length > 0 && (
-        <div className="card mt-4">
-          <div className="card-body">
-            <h4 className="card-title mb-4">
-              <i className="bi bi-basket me-2"></i>
-              {t('recipeDetails.ingredients')}
-            </h4>
-            <div className="row">
-              {recipe.extendedIngredients.map((ingredient) => {
-                const ingredientInfo = ingredientsData[ingredient.id];
-                return (
-                  <div key={ingredient.id} className="col-md-6 mb-3">
-                    <div className="card h-100">
-                      <div className="card-body">
-                        <h6 className="card-subtitle mb-2 text-dark">{ingredient.originalName}</h6>
-                        <div className="small">
-                          <div className="mb-1">
-                            <i className="bi bi-droplet me-1 text-primary"></i>
-                            <strong>{t('recipeDetails.amount')}:</strong> {ingredient.measures?.metric?.amount} {ingredient.measures?.metric?.unitLong}
-                          </div>
-                          {ingredientInfo && ingredientInfo !== null ? (
-                            <>
-                              {ingredientInfo.estimatedCost?.value && (
-                                <div className="mb-1">
-                                  <i className="bi bi-currency-dollar me-1 text-success"></i>
-                                  <strong>{t('recipeDetails.cost')}:</strong> ${(ingredientInfo.estimatedCost.value / 100).toFixed(2)}
-                                </div>
-                              )}
-                              {ingredientInfo.nutrition?.nutrients && (
-                                <>
-                                  {ingredientInfo.nutrition.nutrients
-                                    .filter(n => n.name === 'Calories')
-                                    .map((nutrient, idx) => (
-                                      <div key={idx} className="mb-1">
-                                        <i className="bi bi-fire me-1 text-danger"></i>
-                                        <strong>{t('recipeDetails.calories')}:</strong> {nutrient.amount} {nutrient.unit}
-                                      </div>
-                                    ))
-                                  }
-                                </>
-                              )}
-                            </>
-                          ) : ingredientsLoading ? (
-                            <div className="text-muted fst-italic">
-                              <small>{t('recipeDetails.loadingIngredient')}</small>
-                            </div>
-                          ) : null}
-                        </div>
-                        <div className="form-check form-switch mt-2 pt-2 border-top">
-                          <input 
-                            className="form-check-input" 
-                            type="checkbox" 
-                            id={`ingredient-${ingredient.id}`}
-                            checked={excludedIngredients[ingredient.id] || false}
-                            onChange={() => toggleIngredientExclusion(ingredient.id)}
-                          />
-                          <label className="form-check-label small text-muted" htmlFor={`ingredient-${ingredient.id}`}>
-                            {t('recipeDetails.excludeFromTotalCalories')}
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+      {renderIngredients()}
 
       {recipe.analyzedInstructions && recipe.analyzedInstructions.length > 0 && (
         <div className="card mt-4 mb-4">

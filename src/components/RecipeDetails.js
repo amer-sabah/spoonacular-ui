@@ -309,6 +309,35 @@ const RecipeDetails = () => {
     );
   };
 
+  const renderInstructions = () => {
+    if (!recipe.analyzedInstructions || recipe.analyzedInstructions.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="card mt-4 mb-4">
+        <div className="card-body">
+          <h4 className="card-title mb-4">
+            <i className="bi bi-list-ol me-2"></i>
+            {t('recipeDetails.instructions')}
+          </h4>
+          {recipe.analyzedInstructions.map((instruction, idx) => (
+            <div key={idx} className="mb-3">
+              {instruction.name && <h5>{instruction.name}</h5>}
+              <ol className="list-group list-group">
+                {instruction.steps.map((step) => (
+                  <li key={step.number} className="list-group-item">
+                    <strong>Step {step.number}:</strong> {step.step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -323,28 +352,7 @@ const RecipeDetails = () => {
 
       {renderIngredients()}
 
-      {recipe.analyzedInstructions && recipe.analyzedInstructions.length > 0 && (
-        <div className="card mt-4 mb-4">
-          <div className="card-body">
-            <h4 className="card-title mb-4">
-              <i className="bi bi-list-ol me-2"></i>
-              {t('recipeDetails.instructions')}
-            </h4>
-            {recipe.analyzedInstructions.map((instruction, idx) => (
-              <div key={idx} className="mb-3">
-                {instruction.name && <h5>{instruction.name}</h5>}
-                <ol className="list-group list-group">
-                  {instruction.steps.map((step) => (
-                    <li key={step.number} className="list-group-item">
-                      <strong>Step {step.number}:</strong> {step.step}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {renderInstructions()}
 
       {/* Error Modal */}
       <ErrorModal
